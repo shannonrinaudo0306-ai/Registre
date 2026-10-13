@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<!-- Langue de la page : français -->
+<html lang="fr">
+<head>
+<meta charset="utf-8"> <!-- Accents affichés correctement -->
+<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Adapte la page aux téléphones -->
+<title>Shannon Rinaudo · Ingénieur structures</title> <!-- Titre de l'onglet -->
+<!-- Charge les deux polices Google (titres + texte) -->
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;500;800&family=Newsreader:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+/* ===== COULEURS ET POLICES (modifiables ici, utilisées partout) ===== */
+:root{
+  --fond:#050A0F;      /* noir bleuté du fond */
+  --carte:#0B141C;     /* fond des cartes */
+  --trait:#1B2A36;     /* couleur des fines lignes */
+  --texte:#E8EEF0;     /* texte principal */
+  --gris:#8CA0AD;      /* texte secondaire */
+  --arcenciel:linear-gradient(90deg,#1a3cff,#00b7ff,#1fe0a0,#ffe23a,#ff7a1a,#ff2a2a); /* dégradé façon résultats FEA */
+  --titre:'Bricolage Grotesque',Arial,sans-serif;
+  --corps:'Newsreader',Georgia,serif;
+}
+
+/* ===== BASE ===== */
+*{box-sizing:border-box}               /* les marges internes n'agrandissent pas les blocs */
+html{scroll-behavior:smooth}           /* défilement doux vers les ancres */
+body{margin:0;background:var(--fond);color:var(--texte);font:18px/1.6 var(--corps)}
+a{color:inherit;text-decoration:none}  /* liens sans soulignement */
+img{display:block;max-width:100%}      /* une image ne dépasse jamais son bloc */
+h1,h2,h3{font-family:var(--titre);margin:0;line-height:1.05}
+h2{font-size:clamp(34px,5vw,64px);font-weight:800} /* clamp = taille qui s'adapte à l'écran */
+.centre{max-width:1200px;margin:0 auto;padding:0 24px} /* colonne centrée */
+
+/* ===== MENU (reste collé en haut) ===== */
+nav{position:sticky;top:0;z-index:5;background:rgba(5,10,15,.9);border-bottom:1px solid var(--trait)}
+nav .centre{display:flex;justify-content:space-between;align-items:center;height:60px;font:500 15px var(--titre)}
+nav .liens{display:flex;gap:24px;color:var(--gris)}
+
+/* ===== ACCUEIL ===== */
+.accueil{min-height:90vh;display:flex;flex-direction:column;justify-content:flex-end;padding:60px 0 44px;position:relative;overflow:hidden}
+.accueil svg{position:absolute;inset:0;width:100%;height:100%;opacity:.5} /* dessin de fond */
+.accueil .centre{position:relative}   /* place le texte au-dessus du dessin */
+.accueil h1{font-size:clamp(52px,11vw,160px);font-weight:800;max-width:11ch}
+.accueil p{max-width:46ch;color:#c3d0d7;margin:26px 0}
+.bouton{display:inline-block;font:500 16px var(--titre);padding:14px 26px;border:1px solid var(--texte);border-radius:999px}
+.bouton:hover{background:var(--texte);color:var(--fond)} /* inversion des couleurs au survol */
+.legende{margin-top:40px;max-width:500px}
+.legende i{display:block;height:8px;background:var(--arcenciel);border-radius:2px} /* barre colorée */
+.legende div{display:flex;justify-content:space-between;font:300 13px var(--titre);color:var(--gris);margin-top:8px}
+
+/* ===== SECTIONS ===== */
+section{padding:clamp(70px,10vw,130px) 0}  /* espace au-dessus et en dessous de chaque section */
+.entete{margin-bottom:44px}                /* espace sous le titre (section Projets) */
+
+/* ===== ANALYSES NUMÉRIQUES : grille asymétrique 7+5 puis 5+7 ===== */
+.tete{display:flex;justify-content:space-between;align-items:end;gap:30px;flex-wrap:wrap;margin-bottom:48px} /* titre à gauche, phrase à droite */
+.tete p{max-width:40ch;color:var(--gris);margin:0}
+.grille{display:grid;grid-template-columns:repeat(12,1fr);gap:20px} /* 12 colonnes : chaque carte en prend 5, 6 ou 7 */
+.tuile{position:relative;grid-column:span 6;background:var(--carte);border:1px solid var(--trait);border-radius:6px;overflow:hidden;display:block}
+.tuile:nth-child(4n+1),.tuile:nth-child(4n){grid-column:span 7}   /* cartes 1, 4, 5, 8… : larges */
+.tuile:nth-child(4n+2),.tuile:nth-child(4n+3){grid-column:span 5} /* cartes 2, 3, 6, 7… : étroites */
+.tuile .im{overflow:hidden}                 /* cache le débordement du zoom */
+.tuile img{width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform .6s} /* image recadrée sans déformation */
+.tuile:hover img{transform:scale(1.04)}     /* zoom léger au survol */
+.tuile .tx{padding:22px 24px 26px}
+.tuile .tx span{font:300 14px var(--titre);color:var(--gris)}
+.tuile .tx h3{font-size:24px;font-weight:500;margin:8px 0 10px}
+.tuile .tx p{margin:0;color:#b3c2cb;font-size:16px}
+.tuile:after{content:"";position:absolute;left:0;bottom:0;height:4px;width:100%;background:var(--arcenciel);transform:scaleX(0);transform-origin:left;transition:transform .5s} /* trait coloré caché... */
+.tuile:hover:after{transform:scaleX(1)}     /* ...qui se déploie au survol */
+@media(max-width:800px){.tuile,.tuile:nth-child(n){grid-column:span 12}} /* mobile : une carte par ligne */
+
+/* ===== PROJETS : cartes en grille simple ===== */
+.cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.carte{background:var(--carte);border:1px solid var(--trait);border-radius:6px;overflow:hidden;display:block}
+.carte img{width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform .5s}
+.carte:hover img{transform:scale(1.04)}
+.carte .vignette{overflow:hidden}
+.carte .texte{padding:22px 24px 26px;border-bottom:4px solid transparent}
+.carte:hover .texte{border-image:var(--arcenciel) 1} /* trait coloré au survol */
+.carte span{font:300 14px var(--titre);color:var(--gris)}
+.carte h3{font-size:24px;font-weight:500;margin:8px 0 10px}
+.carte p{margin:0;color:#b3c2cb;font-size:16px}
+
+/* ===== COMPÉTENCES ===== */
+.competences{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));border-top:1px solid var(--trait)}
+.competences div{padding:26px 24px 28px 0;border-bottom:1px solid var(--trait)}
+.competences h3{font-size:22px;font-weight:500}
+.competences p{margin:10px 0 0;color:var(--gris);font-size:16px}
+
+/* ===== CONTACT ET BAS DE PAGE ===== */
+.contact h2{font-size:clamp(40px,8vw,110px)}
+.contact a{display:inline-block;margin-top:26px;font:300 clamp(20px,3vw,32px) var(--titre);border-bottom:2px solid var(--gris)}
+footer{padding:30px 0 50px;color:var(--gris);font:300 14px var(--titre);border-top:1px solid var(--trait)}
+
+/* ===== PAGES PROJET (sans JavaScript) =====
+   Chaque projet est un bloc caché. Un clic sur un lien "#projet1" met cette
+   adresse dans le navigateur, et la règle :target affiche le bloc par-dessus le site. */
+.projet{display:none;position:fixed;inset:0;overflow:auto;background:var(--fond);z-index:10}
+.projet:target{display:block}
+.retour{display:inline-block;margin-top:34px;font:500 15px var(--titre);color:var(--gris)}
+.projet h1{font-size:clamp(40px,7vw,100px);font-weight:800;margin:20px 0 24px;max-width:16ch}
+/* .intro : résumé sous le titre, désormais sur toute la largeur de la colonne */
+.intro{font-size:clamp(20px,2.4vw,26px);color:#cbd6dc}
+.chiffres{display:flex;flex-wrap:wrap;margin:44px 0;border-block:1px solid var(--trait)}
+.chiffres div{flex:1 1 180px;padding:24px 24px 24px 0}
+.chiffres b{display:block;font:800 clamp(30px,4vw,48px) var(--titre)}
+.chiffres span{font:300 14px var(--titre);color:var(--gris)}
+.bloc{margin-bottom:80px}
+.bloc h3{font-size:clamp(26px,3.4vw,40px);font-weight:800;margin-bottom:14px}
+/* .bloc>p : paragraphes des blocs, désormais sur toute la largeur de la colonne */
+.bloc>p{color:#b8c7cf}
+.images{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin-top:26px}
+figure{margin:0}
+figure img{width:100%;border-radius:4px;border:1px solid var(--trait)}
+figcaption{font:italic 15px var(--corps);color:var(--gris);margin-top:8px}
+
+/* Sur petit écran, on cache les liens du menu sauf le dernier (Contact) */
+@media(max-width:640px){nav .liens a:not(:last-child){display:none}}
+</style>
+</head>
+
+<body>
+
+<!-- ============ MENU ============ -->
+<nav>
+  <div class="centre">
+    <a href="#haut" style="font-weight:800">S. Rinaudo</a>
+    <div class="liens">
+      <!-- href="#xxx" = saute vers l'élément dont l'id est "xxx" (sans espace dans l'id) -->
+      <a href="#analyses">Analyses numériques</a>
+      <a href="#projets">Projets</a>
+      <a href="#scolaire">Scolaire</a>
+      <a href="#competences">Compétences</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ ACCUEIL ============ -->
+<header class="accueil" id="haut">
+  <!-- Dessin de fond : une coque simplifiée en traits (modifiez les nombres pour changer la forme) -->
+  <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+    <path d="M100 450 Q600 100 1100 450" fill="none" stroke="#3a5568"/>
+    <path d="M100 450 Q600 300 1100 450" fill="none" stroke="#3a5568"/>
+    <path d="M100 450 Q600 600 1100 450" fill="none" stroke="#00b7ff" stroke-width="1.6"/>
+  </svg>
+  <div class="centre">
+    <h1>Shannon Rinaudo</h1>
+    <p>Ingénieur diplômé en mécanique de Polytech Lyon, avec une spécialisation en aéronautique réalisée à ÉTS Montréal, je possède une expérience en calcul de structures, en éléments finis et en conception mécanique acquise au cours de mon crusus scolaire, mes différents stages et expériences professionnelles. 
+	    <br>Je souhaite aujourd’hui mettre ces compétences au service de projets industriels ambitieux, en contribuant au développement, au dimensionnement ainsi qu’à l’optimisation de solutions techniques performantes.</p>
+    <div class="legende"><i></i><div><span>0</span><span>Contrainte max</span></div></div>
+  </div>
+</header>
+
+<!-- ============ ANALYSES NUMÉRIQUES (grille 7+5 puis 5+7) ============ -->
+<section id="analyses">
+  <div class="centre">
+
+    <!-- En-tête : titre à gauche, phrase à droite -->
+    <div class="tete">
+      <h2>Analyses numériques</h2>
+      <p>Chaque analyse s'ouvre sur sa page : modèle, déformée et contraintes.</p>
+    </div>
+
+    <div class="grille">
+
+      <!-- CARTE 1 (large) : href="#projet1" ouvre le bloc id="projet1" plus bas -->
+      <a class="tuile" href="#projet1">
+        <div class="im"><img src="images/press 2.GIF" alt="Calcul linéaire statique"></div> <!-- image -->
+        <div class="tx">
+          <span>Statique linéaire</span>                 <!-- étiquette -->
+          <h3>Calcul linéaire statique</h3>              <!-- titre -->
+          <p>Tenue d'une structure sous charges de service : contraintes, déplacements, coefficients de sécurité.</p>
+        </div>
+      </a>
+
+      <!-- CARTE 2 (étroite) -->
+      <a class="tuile" href="#projet2">
+        <div class="im"><img src="images/Aile.avif" alt="Flambement"></div>
+        <div class="tx">
+          <span>Stabilité</span>
+          <h3>Flambement</h3>
+          <p>Charge critique et modes de flambement de panneaux raidis et de mâts.</p>
+        </div>
+      </a>
+
+      <!-- Pour ajouter une carte : copiez un bloc <a class="tuile">…</a> ici.
+           Les largeurs alternent toutes seules (7+5, puis 5+7). -->
+
+    </div>
+  </div>
+</section>
+
+
+
+
+<!-- ============ PROJETS (cartes simples) ============ -->
+<section id="projets">
+  <div class="centre">
+    <div class="entete"><h2>Projets</h2></div>
+    <div class="cartes">
+
+      <!-- CARTE 1 -->
+      <a class="carte" href="#projet1">
+        <div class="vignette"><img src="images/press 2.GIF" alt="Cuve sous pression"></div>
+        <div class="texte">
+          <span>Calcul EF · 2026</span>
+          <h3>Analyse d'une cuve sous pression</h3>
+          <p>Modélisation et vérification en tenue mécanique.</p>
+        </div>
+      </a>
+
+      <!-- CARTE 2 -->
+      <a class="carte" href="#projet2">
+        <div class="vignette"><img src="images/Climate Impulse.png" alt="Climate Impulse"></div>
+        <div class="texte">
+          <span>Conception · 2025</span>
+          <h3>Climate Impulse</h3>
+          <p>Dimensionnement de la structure composite d'un avion à propulsion hydrogène.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ============ SCOLAIRE ============ -->
+<section id="scolaire">
+  <div class="centre">
+    <div class="entete"><h2>Scolaires</h2></div>
+    <div class="cartes">
+
+      <!-- METAL EN FEUILLE -->
+      <a class="carte" href="#Métal-feuille">
+        <div class="vignette"><img src="images/Pièce métal feuille.tiff" alt="Détection de pièce en mètal en feuille"></div>
+        <div class="texte">
+          <span>Ecole de Technologie Supérieure (ETS) montréal</span>
+          <h3>Reconnaissance de pièces de type métal en feuille</h3>
+          <p>Ce projet présente le développement d’un outil automatisé capable d’identifier, à partir de fichiers CAO 3D, les pièces fabriquées en métal en feuille. 
+	          Projet réalisée en C# sur Visual Studio associé à Solidworks.
+          </p>
+        </div>
+      </a>
+
+
+
+
+
+
+      <!-- PROBLEME A N CORPS -->
+      <a class="carte" href="#probleme-N-corps">
+        <div class="vignette"><img src="images/Probleme a 3 corps.jpeg" alt="Problème à N corps"></div>
+        <div class="texte">
+          <span>Polytech Lyon</span>
+          <h3>Problème à N corps</h3>
+          <p>Simulation du problème à N corps et moodélisation des interactions gravitationnels du système solaire. <br>Projet réaliser en C++ et Python.
+          </p>
+        </div>
+      </a>
+      
+      
+      
+      
+            <!-- ELEMENTS FINIS - DIFFUSION DE CHALEUR -->
+      <a class="carte" href="#diffusion_chaleur">
+        <div class="vignette"><img src="images/Diffusion-de-chaleur.png" alt="Diffusion de chaleur"></div>
+        <div class="texte">
+          <span>Polytech Lyon</span>
+          <h3>Mise en place de la méthodes des éléments finis.</h3>
+          <p>Mise en place de la méthode des éléments finis pour la résolution de l'équation de diffusion de chaleur mono et bidimensionnelle. <br>Projet réalisé sur Matlab et Python.
+          </p>
+        </div>
+      </a>
+      
+      
+
+
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<!-- ============ COMPÉTENCES ============ -->
+<section id="competences">
+  <div class="centre">
+    <div class="entete"><h2>Compétences</h2></div>
+    <div class="competences">
+      <!-- Un <div> par compétence : titre + phrase -->
+      <div><h3>Esprit d'équipe</h3><p>S'adapter rapidement à l'environnement et aux méthodes de travail.</p></div>
+      <div><h3>Relation client</h3><p>Echanger et communiquer avec la clientèle.</p></div>
+      <div><h3>Calculs numériques</h3><p>Faire des hypothèses de dimensionnement, utiliser les normes et codes de dimensionnement</p></div>
+      <div><h3>Rédaction de documents techniques</h3><p>Rédiger des documents techniques tels que des notes de calcul ou bien des plans techniques.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact" id="contact">
+  <div class="centre">
+    <h2>N'hésitez pas à me contacter</h2>
+    <a href="mailto:shannon.rinaudo0306@gmail.com">shannon.rinaudo0306@gmail.com</a> <!-- mailto: ouvre la messagerie -->
+  </div>
+</section>
+<footer><div class="centre">© 2026 Shannon Rinaudo</div></footer>
+
+
+
+
+
+
+
+
+<!-- =========================================== -->
+<!-- ============ Projets pro ============ -->
+<!-- =========================================== -->
+
+
+<!-- ============ PAGE CUVE SOUS PRESSION ============ -->
+<div class="projet" id="projet1">
+  <div class="centre">
+    <a class="retour" href="#projets">← Retour au menu principal</a> <!-- referme la page projet -->
+    <h1>Cuve sous pression</h1>
+    <p class="intro">Résumé du projet en une ou deux phrases.</p>
+
+    <!-- Chiffres clés : dupliquez un <div> pour en ajouter -->
+    <div class="chiffres">
+      <div><b>CODAP</b><span>Code de dimensionnement</span></div>
+      <div><b>6 bar</b><span>Pression interne</span></div>
+      <div><b>Inox</b><span>Matériau</span></div>
+      <div><b>350 000</b><span>Nombre d'éléments</span></div>
+    </div>
+
+    <!-- Un bloc = un titre, un texte, des images -->
+    <div class="bloc">
+      <h3>Modèle et conditions aux limites</h3>
+      <p>Décrivez ici la géométrie, le maillage, les matériaux, les liaisons et les cas de charge.</p>
+      <div class="images">
+        <!-- Pour changer une image : modifiez src="...". Le texte de figcaption est la légende. -->
+        <figure><img src="images/press 2.GIF" alt="Maillage"><figcaption>Maillage</figcaption></figure>
+        <figure><img src="images/bride 2.GIF" alt="Conditions aux limites"><figcaption>Conditions aux limites</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- ============ PAGE PROJET CLIMATE IMPULSE ============ -->
+<div class="projet" id="projet2">
+  <div class="centre">
+    <a class="retour" href="#projets">← Retour au menu principal</a>
+    <h1>Climate Impulse</h1>
+    <p class="intro">Projet d'avion à hydrogène.</p>
+
+    <div class="chiffres">
+      <div><b>Carbone</b><span>Matériau</span></div>
+      <div><b>6 bar</b><span>Pression interne</span></div>
+      <div><b>Inox</b><span>Matériau</span></div>
+      <div><b>350 000</b><span>Nombre d'éléments</span></div>
+    </div>
+
+    <div class="bloc">
+      <h3>Modèle</h3>
+      <p>Décrivez ici la géométrie, le maillage, les matériaux, les liaisons et les cas de charge.</p>
+      <div class="images">
+        <figure><img src="images/Aile.avif" alt="Maillage"><figcaption>Maillage</figcaption></figure>
+        <figure><img src="images/bride 2.GIF" alt="Conditions aux limites"><figcaption>Conditions aux limites</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- =========================================== -->
+<!-- ============ Projets scolaires ============ -->
+<!-- =========================================== -->
+
+<!-- ============ PAGE PROJET METAL EN FEUILLE ============ -->
+<div class="projet" id="Métal-feuille">
+  <div class="centre">
+    <a class="retour" href="#scolaire">← Retour au menu principal</a>
+    <h1>Reconnaissance de pièces de type métal en feuille</h1>
+    <p class="intro">Projet réalisée en C# sur Visual Studio associé à Solidworks.</p>
+
+
+    <div class="bloc">
+      <h3>Présentation</h3>
+      <p>Ce projet nous met dans le rôle d'un sous-traitant proposant des solutions numériques sur le logiciel SolidWorks afin de simplifier et d'automatiser certaines tâches. 
+	      Nous avons ainsi été fictivement sollicité par un industriel fabriquant des pièces de métal en feuille, qui ne pocède qu'uniquement des machines de pliages, percages et poinçonnages. L'objectif est de trier les pièces recus par le cet industriel afin de déterminer si elles sont réalisable dans son atelier ou pas. </p>
+
+	      
+      <h3>Mise en place</h3>
+      <p>L’interface du programme a été conçue pour offrir une utilisation intuitive et modulaire, adaptée aux
+besoins des utilisateurs. Elle permet de sélectionner des fichiers, de configurer les paramètres d’analyse selon
+les capacités de l’atelier, d’exécuter les vérifications automatiquement et d’exporter les résultats dans un
+format exploitable. </p>
+	      
+	            <div class="images">
+        <figure><img src="images/Metal-en-feuille-interface-graphique.png" alt="Interface graphique"><figcaption>Interface graphique</figcaption></figure>
+      </div>
+
+      <p>Après avoir choisit les paramètres souhaités, les pièces vont être soumise à une série d'algorithme test (épaisseur de la pièces, absence d'angle vifs, rayon de courbure des plis, absence de cycle...). Si un test est validé la pièce passe au test suivant, si un test n'est pas validé, la pièce est catégorisé n'étant pas réalisable en métal en feuille dans l'atelier du client. </p>
+
+      <h3>Conclusion</h3>
+      <p>Notre outil s'est montré performant avec plus de 87% des pièces de notre échantillonnage détécter à juste titre. En revanche, certaine particularité de pièces rendent leur detection particulièrement difficile (pièce extrudée, défaut de géometrie...). </p>
+            <p>Dans l’ensemble, le travail accompli fournit une base pour un outil industriel, tout en ouvrant la voie à de futures améliorations visant à augmenter sa robustesse et sa précision.</p>
+
+	            <div class="images">
+        <figure><img src="images/Metal-en-feuille-interface-termine.png" alt="Analyse terminée"><figcaption>Analyse terminée</figcaption></figure>
+        <figure><img src="images/Piece extrudee.png" alt="Pièce extrudée"><figcaption>Pièce extrudée</figcaption></figure>
+      </div>
+        
+    <!-- Bouton vers le rapport PDF : même style que "Voir mes projets" (classe bouton) -->
+    <!-- href = chemin du PDF ; target="_blank" l'ouvre dans un nouvel onglet -->
+    <a class="bouton" href="documents/Rapport_finale_Rinaudo_Rinaudo.pdf" target="_blank" rel="noopener">Voir le rapport (PDF)</a>
+  </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="projet" id="probleme-N-corps">
+  <div class="centre">
+    <a class="retour" href="#scolaire">← Retour au menu principal</a>
+    <h1>Problème à N corps</h1>
+    <p class="intro">Ce projet présente la simulation numérique de l'interaction gravitationnelle entre plusieurs corps, du problème à 3 corps jusqu'au système solaire. 
+	    <br>Projet réalisé en C++, avec Python pour la visualisation des trajectoires.</p>
+
+    <div class="bloc">
+      <h3>Présentation</h3>
+      <p>Ce projet consiste à simuler numériquement l’interaction gravitationnelle entre plusieurs corps, un problème sans solution exacte dès que plus de deux corps interagissent. Le programme est réalisé en C++ à partir de la loi de la gravitation universelle de Newton, avec Python pour tracer les trajectoires. Il s’appuie sur trois classes : Coordonnees, Vecteur et PointMat. Un schéma d’Euler met à jour la vitesse et la position de chaque astre, et les résultats sont exportés pour être visualisés.</p>
+
+      <h3>Résultats</h3>
+      <p>Nous avons d’abord étudié le problème à 3 corps, chaotique : une variation de 2 % de la vitesse initiale change profondément la trajectoire, alors que des conditions parfaitement symétriques donnent des orbites stables. L’outil a ensuite été appliqué au système Terre-Lune puis à l’ensemble du système solaire, où l’impulsion et l’énergie mécanique se conservent bien. Il présente toutefois trois limites : la singularité de la force lorsque deux astres se rejoignent, la simulation en 2D et l’absence d’effets relativistes.</p>
+
+      <div class="images">
+        <figure><img src="images/trois-corps-chaotique.png" alt="Trajectoires chaotiques"><figcaption>Problème à 3 corps (conditions normales)</figcaption></figure>
+        <figure><img src="images/systeme-solaire.png" alt="Système solaire"><figcaption>Simulation du système solaire</figcaption></figure>
+      </div>
+
+
+      <a class="bouton" href="documents/rapport-n-corps.pdf" target="_blank" rel="noopener">Voir le rapport (PDF)</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<div class="projet" id="diffusion_chaleur">
+  <div class="centre">
+    <a class="retour" href="#scolaire">← Retour au menu principal</a>
+    <h1>Mise en place de la méthodes des éléments finis.</h1>
+    <p class="intro">Mise en place de la méthode des éléments finis pour la résolution de l'équation de diffusion de chaleur mono et bidimensionnelle. <br>Projet réalisé sur Matlab et Python.</p>
+
+    <div class="bloc">
+      <h3>Présentation</h3>
+      <p> A remplir </p>
+
+      <h3>Résultats</h3>
+      <p>A remplir</p>
+
+
+
+
+      <a class="bouton" href="documents/TP_MNM-2.pdf" target="_blank" rel="noopener">Voir le rapport (PDF)</a>
+      <a class="bouton" href="documents/TP_MNM-2_partie_2.pdf" target="_blank" rel="noopener">Voir le rapport (PDF)</a>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+</body>
+</html>
